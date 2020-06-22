@@ -43,4 +43,43 @@ CHIP ALU {
 
     PARTS:
    // Put you code here:
+
+   // zx
+   Mux16(a=x, b=false, sel=zx, out=outzx);
+   // nx
+   Not16(in=outzx, out=notoutzx);
+   Mux16(a=outzx, b=notoutzx, sel=nx, out=outnx);
+
+   // zy
+   Mux16(a=y, b=false, sel=zy, out=outzy);
+   // ny
+   Not16(in=outzy, out=notoutzy);
+   Mux16(a=outzy, b=notoutzy, sel=ny, out=outny);
+
+   // potential orxy
+   Add16(a=outnx, b=outny, out=addxy);
+   // potential andxy
+   And16(a=outnx, b=outny, out=andxy);
+   // Select which one of the above based on f
+   // if f = 0 then andxy else addxy
+   Mux16(a=andxy, b=addxy, sel=f, out=fxy);
+
+   // potential notfxy
+   Not16(in=fxy, out=notfxy);
+   // if no then notfxy else fxy
+   Mux16(a=fxy, b=notfxy, sel=no, out=outno);
+   // need this so we can use the out pin for zr, ng
+   Or16(a=outno, b=false, out=out);
+
+   // set zr
+   // created Or16Way myself
+   // needed to split into separate chip so we could access the
+   // sub-bus of outno
+   Or16Way(in=outno, out=iszero);
+   Not(in=iszero, out=zr);
+
+   // set ng
+   // created IsNegative16 myself
+   IsNegative16(in=outno, out=ng);
+
 }
