@@ -15,4 +15,12 @@ CHIP Bit {
 
     PARTS:
     // Put your code here:
+    // "if load(t-1)", so need last cycle's load
+    DFF(in=in, out=int1);
+    DFF(in=load, out=loadt1);
+    // out(t) = load(t-1) or out(t) = in(t-1)
+    Mux(a=outcpy, b=int1, sel=loadt1, out=mxout);
+    DFF(in=mxout, out=outcpy);
+    // fork the output so we can feed back in
+    And(a=mxout, b=true, out=out);
 }
